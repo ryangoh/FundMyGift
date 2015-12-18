@@ -5,6 +5,8 @@
   <p class="underlogo">Online Platform Project</p>
 </section>
 
+<div class="container" style="padding:20px 50px;"><h1>Fullfil <%= @pins.length %> Peoples' Wish Now</h1></div>
+
 <div id="pins" class="transitions-enabled">
   <% @pins.each do |pin| %>
     <div class="box panel panel-default onhover">
@@ -15,17 +17,24 @@
 
       <div class="panel-body">
 
-        <h2><%= link_to pin.title, pin %></h2>
-
-        <p class="user">Submitted by: <%= pin.user.email%></p>
+        <h2 style="text-align:center;font-weight:bold;"><%= number_to_currency(pin.amount, unit: "$ ", separator: ".", delimiter: "") %></h2>
+        <h2 class="user"><%= link_to pin.title, pin %></h2>
 
         <div class="progress">
           <div class="progress-bar" role="progressbar" aria-valuenow="70"
-          aria-valuemin="0" aria-valuemax="100" style="width:30%">
-            <span class="sr-only">0% Complete</span>
-          </div>
+          aria-valuemin="0" aria-valuemax="100" style="width:<%= (pin.amount)/(pin.goal)*100 %>%"></div>
+          <span class="">
+            <% if (pin.goal-pin.amount) > 0 %>
+              <%= ((pin.goal-pin.amount)/(pin.goal)*100).floor %>% Left
+            <% end %>
+          </span>
         </div>
-        <p class="value">$400</p>
+        <div class="col-sm-6">
+          <p>Wish by: <%= pin.user.name %></p>
+        </div>
+        <div class="col-sm-6">
+          <p class="value"><%= number_to_currency(pin.goal, unit: "$ ", separator: ".", delimiter: "") %></p>
+        </div>
       </div>
     </div>
   <% end %>

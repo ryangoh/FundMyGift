@@ -24,6 +24,10 @@ $cloud: #ecf0f1;
 $pumpkin: #d35400;
 $carrot: #e67e22;
 
+.navbar {
+    margin-bottom: 0px; 
+}
+
 body {
     background: #E9E9E9;
 }
@@ -186,7 +190,7 @@ input {
         font-size: 24px;
         transition: all 0.5s ease;
     }
-} 
+}
 
 .value {
     background-color: $carrot;
@@ -207,7 +211,6 @@ input {
 
 .onhover {
     .image-container {
-        border: 1px solid red;
         position: relative;
         cursor: pointer;
         &:hover {
