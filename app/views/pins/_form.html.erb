@@ -23,6 +23,30 @@
     <%= f.label :description %><br>
     <%= f.text_area :description ,class: "form-control" %>
   </div>
+  <div class="field">
+    <%= f.label :goal %><br />
+    <%= f.number_field :goal, autocomplete: "off" %>
+  </div>
+  <div class="field">
+    <%= f.label :amount %><br />
+    <%= f.number_field :amount, autocomplete: "off" %>
+  </div>
+  <div class="field">
+    <%= f.label :donate_physical %><br />
+    <%= f.check_box :donate_physical, autocomplete: "off" %>
+  </div>
+  <div class="field">
+    <%= f.label :status %><br />
+    <%= f.text_field :status, autocomplete: "off" %>
+  </div>
+  <div class="field">
+    <%= f.label :awb_no %><br />
+    <%= f.text_field :awb_no, autocomplete: "off" %>
+  </div>
+  <div class="field">
+    <%= f.label :delivery_mode %><br />
+    <%= f.text_field :delivery_mode, autocomplete: "off" %>
+  </div>
   <div class="form-group action">
     <%= f.submit class: "btn btn-primary" %>
   </div>
