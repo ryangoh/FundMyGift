@@ -1,6 +1,8 @@
 class FrontpagesController < ApplicationController
   before_action :set_frontpage, only: [:show, :edit, :update, :destroy]
 
+  def faq
+  end
   # GET /frontpages
   # GET /frontpages.json
   def index
