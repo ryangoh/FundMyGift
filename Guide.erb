@@ -1,0 +1,343 @@
+[Terminal] - Create a New App + Database Table
+  rails new pinterest -d postgresql
+  cd pinterest
+  rake db:create
+
+[Open a new Terminal] - Launch Server
+  cd pinterest
+  rails server
+
+[Open the project folder in your text editor, eg Atom]
+
+Goto [Gemfile], add these line
+  gem 'better_errors', '~> 2.1', '>= 2.1.1'
+
+[Terminal] Install the Gem
+  bundle install
+
+[Terminal] Scaffold A Pin - Create Model, View, Controller
+  rails g scaffold Pin title:string description:text
+  rake db:migrate
+
+Go to [routes.rb], point root url to pin index page
+  root 'pins#index'
+
+Create some pins in web application
+
+[index.html.erb] Eliminate table, create own element
+  <% @pins.each do |pin| %>
+    <h2><%= link_to pin.title, pin %></h2>
+  <% end %>
+
+[pins_controller.rb], change
+  def index
+    @pins = Pin.all.order("created_at DESC")
+  end
+
+[show.html.erb] - Add delete button
+  <%= link_to 'Delete', pin_path, method: :delete, data: { confirm: "Are you sure?"} %>
+
+
+[Gemfile]
+  gem 'devise', '~> 3.5', '>= 3.5.3'
+
+[Terminal]
+  bundle install
+
+[Terminal]
+  rails generate devise:install
+
+[development.rb], add
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+
+[Terminal]
+  rails g devise:views
+  rails g devise User
+  rake db:migrate
+
+[Restart server]
+  rails server
+
+Check it's working
+  go http://localhost:3000/users/sign_up
+  try signup
+
+We need to asign pin to user when user create it,
+We are going to associate two table
+[pin.rb] and [user.rb]
+  [user.rb], add
+    has_many :pins
+  [pin.rb], add
+    belongs_to :user
+
+Add a migration, so we can add user_id column in pin table
+[Terminal]
+  rails g migration add_user_id_to_pins user_id:integer:index
+
+[Terminal]
+  rake db:migrate
+
+go to rails console [Terminal]
+  rails c
+  @pin = Pin.first
+  @user = User.first
+  @pin.user = @user
+  @pin
+  @pin.save
+  exit
+
+[show.html.erb] add,
+  <p>Submitted by: <%= @pin.user.email %></p>
+
+Try View Pin 1, viewable
+
+Try create new pin, cannot view, because not linked to user yet
+
+[pins_controller.rb], change
+  def new
+    @pin = current_user.pins.build
+  end
+
+  def create
+    @pin = current_user.pins.build(pin_params)
+
+##### Add Bootstrap to Rails ######
+
+[Gemfile], add
+  gem 'bootstrap-sass', '~> 3.3', '>= 3.3.6'
+
+Delete [scaffolds.scss] content
+
+Rename [app/assets/stylesheets/application.css] to [app/assets/stylesheets/application.css.scss]
+
+[app/assets/stylesheets/application.scss]
+  Add this
+    @import "bootstrap-sprockets";
+    @import "bootstrap";
+
+[pp/assets/javascripts/application.js]
+  Add after jquery_ujs
+    //= require bootstrap-sprockets
+
+
+##### Start Basic Styling ######
+
+[application.html.erb], add after body
+<nav class="navbar navbar-default">
+<div class="container">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="#">Pinterest</a>
+  </div>
+
+    <ul class="nav navbar-nav navbar-right">
+      <% if user_signed_in? %>
+          <li><%= link_to "New Pin", new_pin_path %></li>
+          <li><%= link_to "Account", edit_user_registration_path %></li>
+          <li><%= link_to "Sign Out", destroy_user_session_path, method: :delete %></li>
+      <% end %>
+    </ul>
+  </div><!-- /.navbar-collapse -->
+</div><!-- /.container-fluid -->
+</nav>
+
+add container for yeild
+  <div class="container">
+
+[new.html.erb] [edit.html.erb], wrap with
+  <div class="col-md-6 col-md-offset-3"></div>
+
+[_form.html.erb]
+  ##Replace this
+    <%= form_for(@pin) do |f| %>
+  ##With
+    <%= form_for(@pin, { multipart:true }) do |f| %>
+
+  ##and
+    <div class="form-group">
+      <%= f.label :title %><br>
+      <%= f.text_field :title ,class: "form-control" %>
+    </div>
+    <div class="form-group">
+      <%= f.label :description %><br>
+      <%= f.text_area :description ,class: "form-control" %>
+    </div>
+    <div class="form-group action">
+      <%= f.submit class: "btn btn-primary" %>
+    </div>
+
+##### Upload function ######
+
+[Gemfile]
+  gem "paperclip", "~> 4.3"
+
+[Terminal]
+  bundle install
+
+[pin.rb], add
+  has_attached_file :image, styles: { medium: "300x300>"}
+  validates_attachment_content_type :image, content_type: /\Aimage\/.*\Z/
+
+[Terminal] Generate migration
+  rails g paperclip pin image
+
+Edit form [_form.html.erb], add
+  <div class="form-group">
+    <%= f.label :image %><br>
+    <%= f.file_field :image ,class: "form-control" %>
+  </div>
+
+[pins_controller.rb]
+  def pin_params
+    params.require(:pin).permit(:title, :description, :image)
+  end
+
+Test Upload
+
+[show.html.erb], add
+  <%= image_tag @pin.image.url(:medium) %>
+
+[index.html.erb], add
+  <%= link_to (image_tag pin.image.url(:medium)), pin%>
+
+Add pins content
+Remove index.html.erb table
+
+[edit.html.erb]
+  <%= image_tag @pin.image.url(:medium) %>
+
+########## Arrange the layout : masonry #########
+
+[Gemfile]
+  gem 'masonry-rails'
+
+[Terminal]
+  bundle install
+
+[application.js], add after jquery_ujs
+  //= require masonry/jquery.masonry
+
+[application.css.scss]
+  *= require 'masonry/transitions'
+
+[pin.coffee]
+$(document).on 'page:change', ->
+  $('#pins').imagesLoaded ->
+    $('#pins').masonry
+      itemSelector: '.box'
+      isFitWidth: true
+
+[index.html.erb]
+<div id="pins" class="transitions-enabled">
+  <% @pins.each do |pin| %>
+    <div class="box panel panel-default">
+      <%= link_to (image_tag pin.image.url(:medium)), pin%>
+      <div class="panel-body">
+        <h2><%= link_to pin.title, pin %></h2>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+[application.scss], add css, refer guide3
+
+[show.html.erb]
+<div id="pin_show" class="row">
+  <div class="col-md-8 col-md-offset-2">
+    <div class="panel panel-default">
+      <div class="panel-heading pin_image">
+        <%= image_tag @pin.image.url(:medium) %>
+      </div>
+      <div class="panel-body">
+        <h1><%= @pin.title %></h1>
+        <p class="description"><%= @pin.description %></p>
+      </div>
+      <div class="panel-footer">
+        <div class="row">
+          <div class="col-md-6">
+            <p>Submitted by <%= @pin.user.email %></p>
+          </div>
+          <div class="col-md-6">
+            <div class="btn-group pull-right">
+              <%= link_to 'Edit', edit_pin_path(@pin), class: "btn btn-default" %>
+              <%= link_to 'Back', pins_path, class: "btn btn-default"  %>
+              <%= link_to 'Delete', pin_path, method: :delete, data: { confirm: "Are you sure?"}, class: "btn btn-default"  %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+[index.html.erb], add
+  <p class="user">Submitted by: <%= pin.user.email%></p>
+
+
+######### Vote ################
+
+[Gemfile]
+  gem 'acts_as_votable', '~> 0.10.0'
+
+[Terminal]
+  bundle install
+  rails generate acts_as_votable:migration
+  rake db:migrate
+
+[pin.rb], add
+  acts_as_votable
+
+[routes.rb]
+  resources :pins do
+    member do
+      put "like", to: "pins#upvote"
+    end
+  end
+
+[pins_controller.rb]
+  before action add :upvote
+
+  def upvote
+    @pin.upvote_by current_user
+    redirect_to :back
+  end
+
+[show.html.erb] - add love
+<div class="btn-group pull-right">
+  <%= link_to like_pin_path(@pin), method: :put, class: "btn btn-default" do %>
+    <span class="glyphicon glyphicon-heart"><%= @pin.get_upvotes.size %></span>
+  <% end %>
+  <% if user_signed_in? %>
+    <%= link_to 'Edit', edit_pin_path(@pin), class: "btn btn-default" %>
+    <%= link_to 'Delete', pin_path, method: :delete, data: { confirm: "Are you sure?"}, class: "btn btn-default"  %>
+  <% end %>
+</div>
+
+##### authentication ###
+[pins_controller.rb]
+  before_action :authenticate_user!, except: [:index, :show]
+
+
+
+##### beautify #####
+[new.html.erb] [edit.html.erb]
+<div class="col-md-6 col-md-offset-3">
+  <div class="row">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1>New Pin</h1>
+      </div>
+      <div class="panel-body">
+        <%= render 'form' %>
+
+        <%= link_to 'Back', pins_path %>
+      </div>
+    </div>
+  </div>
+</div>
