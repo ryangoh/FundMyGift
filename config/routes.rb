@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :frontpages
+  resources :fundings
   devise_for :users
   resources :pins do
     member do

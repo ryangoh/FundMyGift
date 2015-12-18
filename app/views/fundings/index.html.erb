@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Fundings</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Pin</th>
+      <th>User</th>
+      <th>Amount</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @fundings.each do |funding| %>
+      <tr>
+        <td><%= funding.pin_id %></td>
+        <td><%= funding.user_id %></td>
+        <td><%= funding.amount %></td>
+        <td><%= link_to 'Show', funding %></td>
+        <td><%= link_to 'Edit', edit_funding_path(funding) %></td>
+        <td><%= link_to 'Destroy', funding, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Funding', new_funding_path %>
