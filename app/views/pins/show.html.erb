@@ -16,7 +16,7 @@
         <section class="row">
 
           <div class="col-md-6">
-            <p>Submitted by <%= @pin.user.email %></p>
+            <p>Wish by <%= @pin.user.name %></p>
           </div>
 
           <div class="col-md-">
@@ -36,18 +36,18 @@
         <section class="row">
           <div class="col-md-12">
           <p>
-            <span class="value-current">$250</span>/
-            <span class="value-total">$500</span>
+            <span class="value-current"><%= number_to_currency(@pin.amount, unit: "$ ", separator: ".", delimiter: "") %></span>/
+            <span class="value-total"><%= number_to_currency(@pin.goal, unit: "$ ", separator: ".", delimiter: "") %></span>
           </p>
             <div class="progress">
-              <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:50%">
-                <span class="sr-only">0% Complete</span>
-              </div>
+              <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:<%= (@pin.amount)/(@pin.goal)*100 %>%"></div>
+              <span class=""><%= ((@pin.amount)/(@pin.goal)*100).floor %>% Complete</span>
             </div>
           </div>
 
           <div class="col-md-12">
-            <div class="btn btn-info btn-lg">Donate</div>
+            <div class="btn btn-info btn-lg disabled">Donate</div>
+            <div class="btn btn-default">$1</div>
             <div class="btn btn-default">$5</div>
             <div class="btn btn-default">$10</div>
             <div class="btn btn-default">$50</div>
